@@ -19,7 +19,7 @@
   }
 
   *::selection {
-    background-color: rgb(0, 255, 55) !important;
+    background-color: #11ff44 !important;
     color: black;
   }
 
@@ -35,32 +35,64 @@
   }
 
   a:hover {
-    background: rgb(0, 255, 55);
+    background: #11ff44;
+    transition: background-color 0.7s;
   }
 
   ul {
     list-style: none;
     padding: 0;
   }
+
+  li {
+    margin-bottom: 5px;
+  }
+
+  a {
+    padding: 2px;
+  }
+
+  #link-container ul {
+    flex-direction: row;
+    display: flex;
+    gap: 10px;
+  }
 </style>
 
 <body>
   <div id="main-container">
+    <div id="link-container">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/projects">Projects</a></li>
+        <li><a href="/audits">Audits</a></li>
+        <li><a target="_blank"
+            href="https://cf-ipfs.com/ipfs/bafkreifzahfpukipdwqb2stck722252acmmskbecick4qlokqqhylflty4">CV</a></li>
+      </ul>
+    </div>
     <h1>Nima Rasooli</h1>
-    <p>Hi! I'm a 19-year-old curious fast learner who loves computers and philosophy. My current focus is mainly on
-      distributed computing. I enjoy writing code in Rust and doing research (a lot). What I don't enjoy is anything
-      related to front-end web development. When I'm not coding, I'm usually reading, watching a film, or in the gym.
+    <p>Hi! I'm a 19-year-old curious programmer who loves computers and philosophy. My current focus is mainly on
+      distributed computing. I enjoy writing code in Rust and doing research (a lot). Previously I was a technical lead
+      at <a href="https://twitter.com/fleekxyz" target="_blank">Fleek</a> and led the development of <a
+        href="https://github.com/Psychedelic/dab" target="_blank">DAB</a>, <a href="https://daowabunga.xyz/"
+        target="_blank">Daowabunga</a>, and the back-end of <a href="https://github.com/fleekxyz/non-fungible-apps/"
+        target="_blank">NFA</a>. Part-time I do code audits as a part of the <a
+        href="https://www.solidstateauditing.com/" target="_blank">Solidstate</a> auditing firm. What I don't enjoy is
+      anything
+      related to <u>front-end</u> web development. When I'm not coding, I'm usually reading, watching a film, or in the
+      gym.
     </p>
-    
+
     <p>You can find me on:</p>
-    
+
     <ul>
-      <li><a href="https://twitter.com/0xNimaRa">Twitter / X</a></li>
-      <li><a href="https://github.com/EmperorOrokuSaki">GitHub</a></li>
+      <li><a target="_blank" href="https://twitter.com/0xNimaRa">Twitter / X</a></li>
+      <li><a target="_blank" href="https://github.com/EmperorOrokuSaki">GitHub</a></li>
       <li>
-        <a href="https://github.com/Nima-Ra">GitHub (Old pre-2022 account)</a>
+        <a target="_blank" href="https://github.com/Nima-Ra">GitHub (Old pre-2022 account)</a>
       </li>
-      <li><a href="https://letterboxd.com/nimara/">Letterboxd</a></li>
+      <li><a target="_blank" href="https://letterboxd.com/nimara/">Letterboxd</a></li>
     </ul>
 
   </div>
