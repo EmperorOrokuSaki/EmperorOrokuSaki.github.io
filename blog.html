@@ -1,63 +1,59 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nima Rasooli</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inconsolata';
+        }
+
+        #main-container {
+            margin: 0 auto;
+            max-width: 60%;
+            padding-top: 200px;
+            text-align: justify;
+        }
+
+        *::selection {
+            background-color: #11ff44 !important;
+            color: black;
+        }
+
+        p, li {
+            font-size: 18px;
+            margin-bottom: 1em;
+            line-height: 1.3;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+            padding: 2px;
+        }
+
+        a:hover {
+            background: #11ff44;
+            transition: background-color 0.7s;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #link-container ul {
+            flex-direction: row;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
 </head>
-<style>
-    * {
-        font-family: 'Inconsolata';
-    }
-
-    #main-container {
-        margin: 0 auto;
-        max-width: 60%;
-        padding-top: 200px;
-        text-align: justify;
-    }
-
-    *::selection {
-        background-color: #11ff44 !important;
-        color: black;
-    }
-
-    p {
-        font-size: 18px;
-        margin-bottom: 1em;
-        line-height: 1.3;
-    }
-
-    a {
-        text-decoration: none;
-        color: black;
-    }
-
-    a:hover {
-        background: #11ff44;
-        transition: background-color 0.7s;
-    }
-
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-
-    li {
-        margin-bottom: 5px;
-    }
-
-    a {
-        padding: 2px;
-    }
-
-    #link-container ul {
-        flex-direction: row;
-        display: flex;
-        gap: 10px;
-    }
-</style>
 
 <body>
     <div id="main-container">
@@ -67,15 +63,29 @@
                 <li><a href="/blog">Blog</a></li>
                 <li><a href="/projects">Projects</a></li>
                 <li><a href="/audits">Audits</a></li>
-                <li><a target="_blank"
-                        href="https://cf-ipfs.com/ipfs/bafkreifzahfpukipdwqb2stck722252acmmskbecick4qlokqqhylflty4">CV</a>
-                </li>
+                <li><a target="_blank" href="https://cf-ipfs.com/ipfs/bafkreifzahfpukipdwqb2stck722252acmmskbecick4qlokqqhylflty4">CV</a></li>
             </ul>
         </div>
         <h1>Blog</h1>
-        <p>Nothing here yet!
-        </p>
+        <ul id="postList">
+            <!-- Posts will be appended here by JavaScript -->
+        </ul>
     </div>
+
+    <script>
+        function loadPost() {
+            const filePath = '/blog/chainfusion.md';
+            fetch(filePath).then(response => response.text()).then(text => {
+                const firstLine = text.split('\n')[0].trim();
+                const title = firstLine.replace(/^# /, ''); // Remove Markdown header marker
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="${filePath}">${title}</a>`;
+                document.getElementById('postList').appendChild(li);
+            });
+        }
+
+        loadPost();
+    </script>
 </body>
 
 </html>
