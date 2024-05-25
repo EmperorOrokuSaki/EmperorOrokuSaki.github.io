@@ -56,7 +56,6 @@
 </head>
 
 <body>
-<body>
     <div id="main-container">
         <div id="link-container">
             <ul>
@@ -85,15 +84,22 @@ document.addEventListener('DOMContentLoaded', function () {
     markdownFiles.forEach(filePath => {
         fetch(filePath).then(response => response.text()).then(text => {
             const firstLine = text.split('\n')[0].trim();
-            const title = firstLine.replace(/^# /, ''); // Remove Markdown header marker
+            const title = firstLine.replace(/^# /, '');
             const postName = filePath.split('/').pop().replace('.md', '');
             const li = document.createElement('li');
-            li.innerHTML = `<a href="#" onclick="loadMarkdown('${filePath}', '${postName}', '${title}'); return false;">${title}</a>`;
+            const a = document.createElement('a');
+            a.href = "#";
+            a.textContent = title;
+            a.addEventListener('click', function(event) {
+                event.preventDefault();
+                loadMarkdown(filePath, postName, title);
+            });
+            li.appendChild(a);
             document.getElementById('postList').appendChild(li);
         });
     });
 
-    window.loadMarkdown = function (filePath, postName, title) {
+    function loadMarkdown(filePath, postName, title) {
         fetch(filePath).then(response => response.text()).then(text => {
             const markdownContainer = document.getElementById('markdownContent');
             markdownContainer.innerHTML = `<h2>${title}</h2>` + marked(text);
@@ -101,9 +107,10 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('postList').style.display = 'none';
             window.history.pushState({ path: filePath }, '', `/blog/${postName}`);
         });
-    };
+    }
 });
 </script>
+
 
 </body>
 
