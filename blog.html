@@ -56,6 +56,7 @@
 </head>
 
 <body>
+<body>
     <div id="main-container">
         <div id="link-container">
             <ul>
@@ -68,24 +69,42 @@
         </div>
         <h1>Blog</h1>
         <ul id="postList">
-            <!-- Posts will be appended here by JavaScript -->
+            <!-- Posts will be dynamically appended here -->
         </ul>
+        <div id="markdownContent" style="display:none;">
+            <!-- Parsed markdown content will be displayed here -->
+        </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const markdownFiles = [
+        '/blog/chainfusion.md',
+    ];
 
-    <script>
-        function loadPost() {
-            const filePath = '/blog/chainfusion.md';
-            fetch(filePath).then(response => response.text()).then(text => {
-                const firstLine = text.split('\n')[0].trim();
-                const title = firstLine.replace(/^# /, ''); // Remove Markdown header marker
-                const li = document.createElement('li');
-                li.innerHTML = `<a href="${filePath}">${title}</a>`;
-                document.getElementById('postList').appendChild(li);
-            });
-        }
+    markdownFiles.forEach(filePath => {
+        fetch(filePath).then(response => response.text()).then(text => {
+            const firstLine = text.split('\n')[0].trim();
+            const title = firstLine.replace(/^# /, ''); // Remove Markdown header marker
+            const postName = filePath.split('/').pop().replace('.md', '');
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="#" onclick="loadMarkdown('${filePath}', '${postName}', '${title}'); return false;">${title}</a>`;
+            document.getElementById('postList').appendChild(li);
+        });
+    });
 
-        loadPost();
-    </script>
+    window.loadMarkdown = function (filePath, postName, title) {
+        fetch(filePath).then(response => response.text()).then(text => {
+            const markdownContainer = document.getElementById('markdownContent');
+            markdownContainer.innerHTML = `<h2>${title}</h2>` + marked(text);
+            markdownContainer.style.display = 'block';
+            document.getElementById('postList').style.display = 'none';
+            window.history.pushState({ path: filePath }, '', `/blog/${postName}`);
+        });
+    };
+});
+</script>
+
 </body>
 
 </html>
