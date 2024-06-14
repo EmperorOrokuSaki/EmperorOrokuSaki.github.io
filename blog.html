@@ -83,22 +83,31 @@ document.addEventListener('DOMContentLoaded', function () {
     ];
 
     markdownFiles.forEach(filePath => {
-        fetch(filePath).then(response => response.text()).then(text => {
-            const firstLine = text.split('\n')[0].trim();
-            const title = firstLine.replace(/^# /, '');
-            const postName = filePath.split('/').pop().replace('.md', '');
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.href = "#";
-            a.textContent = title;
-            a.addEventListener('click', function(event) {
-                event.preventDefault();
-                loadMarkdown(filePath, postName, title);
-            });
-            li.appendChild(a);
-            document.getElementById('postList').appendChild(li);
+    fetch(filePath).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    }).then(text => {
+        console.log(text);  // Check the content of the markdown files
+        const firstLine = text.split('\n')[0].trim();
+        const title = firstLine.replace(/^# /, '');
+        const postName = filePath.split('/').pop().replace('.md', '');
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = "#";
+        a.textContent = title;
+        a.addEventListener('click', function(event) {
+            event.preventDefault();
+            loadMarkdown(filePath, postName, title);
         });
+        li.appendChild(a);
+        document.getElementById('postList').appendChild(li);
+    }).catch(error => {
+        console.error('Fetch error:', error);
     });
+});
+
 
     function loadMarkdown(filePath, postName, title) {
         fetch(filePath).then(response => response.text()).then(text => {
