@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '/blog/trill_evm_tracing.md'
     ];
 
-    markdownFiles.forEach(filePath => {
+   markdownFiles.forEach(filePath => {
     fetch(filePath).then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -90,8 +90,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return response.text();
     }).then(text => {
         console.log(text);  // Check the content of the markdown files
-        const firstLine = text.split('\n')[0].trim();
-        const title = firstLine.replace(/^# /, '');
+        const lines = text.split('\n');
+        let firstLine = lines.find(line => line.trim().length > 0);
+        firstLine = firstLine ? firstLine.trim() : 'Untitled Post';
+        const title = firstLine.replace(/^#+\s*/, '');  // Remove Markdown heading symbols and any leading whitespace
         const postName = filePath.split('/').pop().replace('.md', '');
         const li = document.createElement('li');
         const a = document.createElement('a');
@@ -107,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Fetch error:', error);
     });
 });
+
 
 
     function loadMarkdown(filePath, postName, title) {
