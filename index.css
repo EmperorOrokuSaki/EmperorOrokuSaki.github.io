@@ -1,0 +1,148 @@
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.sidebar, .main-content {
+    background-color: var(--accent-color);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar::before, .main-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(45deg, 
+            transparent 49%, 
+            var(--link-color) 49%, 
+            var(--link-color) 51%, 
+            transparent 51%
+        );
+    background-size: 6px 6px;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.sidebar {
+    flex: 1 1 300px;
+    padding: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.main-content {
+    flex: 3 1 600px;
+    padding: 20px;
+}
+
+h2 {
+    font-size: 24px;
+    color: var(--text-color);
+    font-weight: 500;
+    font-style: italic;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--link-color);
+    padding-bottom: 5px;
+    text-shadow: 0 0 5px var(--link-color);
+}
+
+p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+a:hover {
+    color: var(--text-color);
+    text-shadow: 0 0 5px var(--link-color);
+}
+
+.content-section {
+    margin-bottom: 40px;
+}
+
+.content-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.content-section ul li {
+    margin-bottom: 10px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.content-section ul li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--link-color);
+}
+
+.content-section ul li strong {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        margin-right: 0;
+    }
+}
+
+h2 {
+    position: relative;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--link-color);
+    filter: blur(8px);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+h2:hover::after {
+    opacity: 0.2;
+}
+
+.sidebar::after, .main-content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(0, 255, 0, 0.05) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+}
