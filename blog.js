@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const postFile = urlParams.get('post'); // Default to 'post.md' if no parameter
 
-    fetch(postFile)
+    fetch(`posts/${postFile}`)
         .then(response => response.text())
         .then(markdown => {
             // Parse markdown to HTML

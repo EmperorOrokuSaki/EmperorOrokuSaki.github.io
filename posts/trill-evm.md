@@ -2,7 +2,7 @@
 
 A TUI Memory Profiler for EVM Using Geth's Debug API
 
-![](./trill-evm/trill.png)
+![](/posts/trill-evm/trill.png)
 
 A while back, I randomly saw [this tweet](https://x.com/0xkarmacoma/status/1773385937323786662) and noticed a growing interest in EVM profilers. The timing was perfect—I'd been itching to build something that not only serves the need but does it with a twist: a TUI (terminal user interface) app. TUIs are just cooler and more accessible.
 
@@ -18,7 +18,7 @@ After checking out several TUI crates, I landed on [Ratatui](https://github.com/
 
 ## Designing the interface
 
-![](./trill-evm/Trill_overview.gif)
+![](/posts/trill-evm/Trill_overview.gif)
 
 My goal was a clean, uncluttered UI. I thought about what essential information might look like for the user. Here’s what I came up with:
 
@@ -30,7 +30,7 @@ My goal was a clean, uncluttered UI. I thought about what essential information 
 
 ## Tracing Transactions
 
-![](./trill-evm/Gandalf.jpg)
+![](/posts/trill-evm/Gandalf.jpg)
 
 Using Geth's debug API, Trill traces execution steps, offering insights into the stack and memory states at any point. Initially, finding a free RPC provider supporting this API was a hassle, so Trill defaults to Anvil's local endpoint unless specified otherwise by the `--rpc` flag.
 
