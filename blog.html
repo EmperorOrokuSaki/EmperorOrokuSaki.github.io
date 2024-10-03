@@ -4,25 +4,350 @@
 <head>
     <meta charset="UTF-8">
     <title>Nima Rasooli - Blog</title>
-    <link rel="stylesheet" href="blog.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+
+        :root {
+            --bg-color: #0a0a0a;
+            --text-color: #e0e0e0;
+            --accent-color: #1a1a1a;
+            --highlight-color: #2a2a2a;
+            --link-color: #00ff00;
+            --code-bg-color: #252525;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 0, 0.03) 0px,
+                rgba(0, 255, 0, 0.03) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--accent-color);
+            box-shadow: 0 2px 10px rgba(0, 255, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--link-color), transparent);
+            animation: scan 4s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-style: italic;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 255, 0, 0.5);
+        }
+
+        header p {
+            font-size: 16px;
+            margin-top: 0;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            font-weight: normal;
+            text-decoration: none;
+            color: var(--link-color);
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav ul li a:hover {
+            color: var(--text-color);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--link-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            transform: scaleX(1);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 728px;
+            margin: 40px auto;
+            text-align: justify;
+            padding: 20px;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.05);
+            position: relative;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 49%, var(--link-color) 49%, var(--link-color) 51%, transparent 51%);
+            background-size: 6px 6px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .container h2 {
+            width: 100%;
+            border-bottom: 2px solid var(--link-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--accent-color);
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -100%;
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--link-color), transparent);
+            animation: scan 4s linear infinite;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            14% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            15% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            49% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            50% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                            0.05em 0 0 rgba(0, 255, 0, 0.75),
+                            0 -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            99% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                            0.05em 0 0 rgba(0, 255, 0, 0.75),
+                            0 -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            100% {
+                text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.025em -0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.025em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+        }
+
+        header h1:hover {
+            animation: glitch 1s linear infinite;
+        }
+
+        /* Markdown-generated content styles */
+        .container h1, .container h2, .container h3, .container h4, .container h5, .container h6 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: var(--text-color);
+        }
+
+        .container h1 {
+            font-size: 2em;
+            border-bottom: 2px solid var(--link-color);
+            padding-bottom: 0.3em;
+        }
+
+        .container h2 {
+            font-size: 1.5em;
+        }
+
+        .container h3 {
+            font-size: 1.3em;
+        }
+
+        .container p {
+            margin-bottom: 1em;
+        }
+
+        .container a {
+            color: var(--link-color);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--link-color);
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        .container a:hover {
+            color: var(--text-color);
+            border-bottom-color: var(--text-color);
+        }
+
+        .container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1em auto;
+            border: 1px solid var(--link-color);
+        }
+
+        .container blockquote {
+            border-left: 4px solid var(--link-color);
+            padding-left: 1em;
+            margin-left: 0;
+            font-style: italic;
+            color: var(--link-color);
+        }
+
+        .container pre {
+            background-color: var(--code-bg-color);
+            padding: 1em;
+            overflow-x: auto;
+            border-radius: 4px;
+            border: 1px solid var(--link-color);
+        }
+
+        .container code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9em;
+            background-color: var(--code-bg-color);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            color: var(--link-color);
+        }
+
+        .container ul, .container ol {
+            padding-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        .container li {
+            margin-bottom: 0.5em;
+        }
+
+        .container table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1em;
+        }
+
+        .container th, .container td {
+            border: 1px solid var(--link-color);
+            padding: 0.5em;
+            text-align: left;
+        }
+
+        .container th {
+            background-color: var(--highlight-color);
+        }
+
+        .container hr {
+            border: none;
+            border-top: 1px solid var(--link-color);
+            margin: 2em 0;
+        }
+    </style>
 </head>
 
 <body>
     <header>
         <h1>Blog</h1>
         <p>My thoughts and experiences</p>
+        <nav>
+            <ul>
+                <li><a href="/#about">About Me</a></li>
+                <li><a href="/#projects">Projects</a></li>
+                <li><a href="/#audits">Audits</a></li>
+                <li><a href="/blog">Blog</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <nav>
-        <ul>
-            <li><a href="/#about">About Me</a></li>
-            <li><a href="/#projects">Projects</a></li>
-            <li><a href="/#audits">Audits</a></li>
-            <li><a href="/blog">Blog</a></li>
-        </ul>
-    </nav>
-
-    <section id="blog-content" class="content-section">
+    <section id="blog-content" class="container">
+        <!-- Markdown content will be inserted here by the marked framework -->
     </section>
 
     <footer>
