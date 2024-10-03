@@ -3,128 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nima Rasooli</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
-    <style>
-        * {
-            font-family: 'Inconsolata';
-        }
-
-        #main-container {
-            margin: 0 auto;
-            max-width: 60%;
-            padding-top: 200px;
-            text-align: justify;
-        }
-
-        *::selection {
-            background-color: #11ff44 !important;
-            color: black;
-        }
-
-        p, li {
-            font-size: 18px;
-            margin-bottom: 1em;
-            line-height: 1.3;
-        }
-
-        a {
-            text-decoration: none;
-            color: black;
-            padding: 2px;
-        }
-
-        a:hover {
-            background: #11ff44;
-            transition: background-color 0.7s;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        #link-container ul {
-            flex-direction: row;
-            display: flex;
-            gap: 10px;
-        }
-    </style>
+    <title>Nima Rasooli - Blog</title>
+    <link rel="stylesheet" href="blog.css">
 </head>
 
 <body>
-    <div id="main-container">
-        <div id="link-container">
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/blog">Blog</a></li>
-                <li><a href="/projects">Projects</a></li>
-                <li><a href="/audits">Audits</a></li>
-                <li><a target="_blank" href="https://cf-ipfs.com/ipfs/bafkreifzahfpukipdwqb2stck722252acmmskbecick4qlokqqhylflty4">CV</a></li>
-            </ul>
-        </div>
+    <header>
         <h1>Blog</h1>
-        <ul id="postList">
-            <!-- Posts will be dynamically appended here -->
+        <p>My thoughts and experiences</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="/#about">About Me</a></li>
+            <li><a href="/#projects">Projects</a></li>
+            <li><a href="/#audits">Audits</a></li>
+            <li><a href="/blog">Blog</a></li>
         </ul>
-        <div id="markdownContent" style="display:none;">
-            <!-- Parsed markdown content will be displayed here -->
-        </div>
-    </div>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const markdownFiles = [
-        '/blog/chainfusion.md',
-        '/blog/trill_evm_tracing.md'
-    ];
+    </nav>
 
-   markdownFiles.forEach(filePath => {
-    fetch(filePath).then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.text();
-    }).then(text => {
-        console.log(text);  // Check the content of the markdown files
-        const lines = text.split('\n');
-        let firstLine = lines.find(line => line.trim().length > 0);
-        firstLine = firstLine ? firstLine.trim() : 'Untitled Post';
-        const title = firstLine.replace(/^#+\s*/, '');  // Remove Markdown heading symbols and any leading whitespace
-        const postName = filePath.split('/').pop().replace('.md', '');
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = "#";
-        a.textContent = title;
-        a.addEventListener('click', function(event) {
-            event.preventDefault();
-            loadMarkdown(filePath, postName, title);
-        });
-        li.appendChild(a);
-        document.getElementById('postList').appendChild(li);
-    }).catch(error => {
-        console.error('Fetch error:', error);
-    });
-});
+    <section id="blog-content" class="content-section">
+    </section>
 
+    <footer>
+        <p>Copyleft 2024</p>
+    </footer>
 
-
-    function loadMarkdown(filePath, postName, title) {
-        fetch(filePath).then(response => response.text()).then(text => {
-            const markdownContainer = document.getElementById('markdownContent');
-            markdownContainer.innerHTML = `<h2>${title}</h2>` + marked.parse(text);
-            markdownContainer.style.display = 'block';
-            document.getElementById('postList').style.display = 'none';
-            window.history.pushState({ path: filePath }, '', `/blog/${postName}`);
-        });
-    }
-});
-</script>
-
-
+    <script src="marked.js"></script>
+    <script src="blog.js"></script>
 </body>
 
 </html>
