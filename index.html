@@ -1,104 +1,109 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-  <title>Nima Rasooli</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <title>Nima Rasooli</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="index.css">
 </head>
-<style>
-  * {
-    font-family: 'Inconsolata';
-  }
-
-  #main-container {
-    margin: 0 auto;
-    max-width: 60%;
-    padding-top: 200px;
-    text-align: justify;
-  }
-
-  *::selection {
-    background-color: #11ff44 !important;
-    color: black;
-  }
-
-  p {
-    font-size: 18px;
-    margin-bottom: 1em;
-    line-height: 1.3;
-  }
-
-  a {
-    text-decoration: none;
-    color: black;
-  }
-
-  a:hover {
-    background: #11ff44;
-    transition: background-color 0.7s;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  li {
-    margin-bottom: 5px;
-  }
-
-  a {
-    padding: 2px;
-  }
-
-  #link-container ul {
-    flex-direction: row;
-    display: flex;
-    gap: 10px;
-  }
-</style>
 
 <body>
-  <div id="main-container">
-    <div id="link-container">
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="https://0xnimara.substack.com/">Blog</a></li>
-        <li><a href="/projects">Projects</a></li>
-        <li><a href="/audits">Audits</a></li>
-        <li><a target="_blank"
-            href="https://cf-ipfs.com/ipfs/bafkreifzahfpukipdwqb2stck722252acmmskbecick4qlokqqhylflty4">CV</a></li>
-      </ul>
+    <header>
+        <h1>Hi, I'm Nima!</h1>
+        <p>explo(r|it)ing the world</p>
+        <nav>
+            <ul>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#opensource">Open-source</a></li>
+                <li><a href="#audits">Audits</a></li>
+                <li><a href="/blog">Blog</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <section id="about">
+                <h2>About Me</h2>
+                <p>I love trying out new ideas and technologies, with a current focus on decentralized networks and
+                    low-level computing.</p>
+                <p>I'm also really into the German idealism movement and find philosophy pretty fascinating. Plus, I
+                    admire filmmakers like Denis Villeneuve, Andrei Tarkovsky, and Terrence Malick. </p>
+                <p>When I’m not coding, reading, or watching films, I’m probably at the gym or just asking random
+                    questions.</p>
+            </section>
+
+            <section id="socials">
+                <h2>Socials</h2>
+                <ul>
+                    <li><a href="https://x.com/0xNimaRa" target="_blank">X</a></li>
+                    <li><a href="https://github.com/EmperorOrokuSaki" target="_blank">GitHub</a></li>
+                    <li><a href="https://letterboxd.com/nimara/" target="_blank">Letterboxd</a></li>
+                    <li><a href="https://t.me/Emperororokusaki" target="_blank">Telegram</a></li>
+                </ul>
+            </section>
+        </aside>
+
+        <main class="main-content">
+            <section id="projects" class="content-section">
+                <h2>Projects</h2>
+                <ul>
+                    <li><strong><a href="https://github.com/liquity/bold-ir-management">Liquity IR Manager:</a></strong>
+                        Autonomous immutable interest rate management system for Liquity V2</li>
+                    <li><strong><a href="https://github.com/fleekxyz/non-fungible-apps">NFAs:</a></strong> Trustless
+                        onchain access to web3 frontends</li>
+                    <li><strong><a href="https://github.com/Psychedelic/dab/">DAB:</a></strong> Certified data
+                        registries for onchain assets</li>
+                    <li><strong><a href="https://github.com/EmperorOrokuSaki/trill">Trill:</a></strong> A TUI EVM smart
+                        contract memory profiler</li>
+                    <li><strong><a href="https://daowabunga.xyz/">Daowabunga:</a></strong> Modular multi-chain governance framework</li>
+                </ul>
+            </section>
+
+            <section id="opensource" class="content-section">
+                <h2>Open-source</h2>
+                <ul>
+                    <li><strong><a href="https://github.com/alloy-rs/">Alloy:</a></strong> Worked on the Optimism port
+                        and the main crate</li>
+                    <li><strong><a href="https://github.com/a16z/halmos">Halmos:</a></strong> Worked on the forge-std
+                        compatibility issues and the CI/CD pipeline.</li>
+                </ul>
+            </section>
+
+            <section id="audits" class="content-section">
+                <h2>Audits</h2>
+                <ul>
+                    <li><strong><a
+                                href="https://github.com/solidstate-auditing/audits-public/blob/main/SONIC.md">Sonic:</a></strong>
+                        Decentralized AMM</li>
+                    <li><strong><a
+                                href="https://github.com/solidstate-auditing/audits-public/blob/main/ICDex.md">ICDex:</a></strong>
+                        Order book DEX</li>
+                    <li><strong><a href="https://github.com/Psychedelic/dab/">DeFi Vectors:</a></strong> Decentralized
+                        Vector Finance</li>
+                    <li><strong><a href="https://x.com/solidstate_icp/status/1833519832928817179">IcRouter:</a></strong>
+                        Cross-chain bridge [In progress]</li>
+                    <li><strong><a href="https://x.com/solidstate_icp/status/1838567591780192642">NFID:</a></strong>
+                        Wallet [In progress]</li>
+                </ul>
+            </section>
+
+            <section id="posts" class="content-section">
+                <h2>Latest Posts</h2>
+                <ul id="posts-list">
+                    <li><a href="https://0xnimara.substack.com/p/safety-over-freedom">Why We Can't Have Nice Things: The
+                            Cost of Safety Over Freedom in Innovation.</a></li>
+                    <li><a href="https://0xnimara.substack.com/p/building-trill">Building Trill: A TUI Memory Profiler
+                            for EVM Using Geth's Debug API</a></li>
+                </ul>
+            </section>
+        </main>
     </div>
-    <h1>Nima Rasooli</h1>
-    <p>Hello! I'm a 19-year-old programmer with a deep curiosity for computers and technology. I specialize in writing
-      code in Rust and enjoy conducting extensive research. Currently, I serve as a tech lead at Code&State. Previously,
-      I held the position of technical lead at <a href="https://twitter.com/fleekxyz" target="_blank">Fleek</a>.
-      Additionally, I perform part-time code audits with the <a href="https://www.solidstateauditing.com/"
-        target="_blank">Solidstate</a> auditing firm. My colleagues and friends know me for my passion for open-source
-      and decentralized software. Outside of work, I am also passionate about learning new languages, philosophy, and
-      cinema.</p>
 
-
-    <p>You can find me on:</p>
-
-    <ul>
-      <li><a target="_blank" href="https://twitter.com/0xNimaRa">- Twitter</a></li>
-      <li><a target="_blank" href="https://github.com/EmperorOrokuSaki">- GitHub</a></li>
-      <li>
-        <a target="_blank" href="https://github.com/Nima-Ra">- Old GitHub</a>
-      </li>
-      <li><a target="_blank" href="https://letterboxd.com/nimara/">- Letterboxd</a></li>
-    </ul>
-
-    <h2>My latest blog posts:</h2>
-    <ul>
-      <li><a target="_blank" href="https://0xnimara.substack.com/building-trill">-> Building Trill: A TUI Memory Profiler for EVM Using Geth's Debug API</a></li>
-      <li>
-    </ul>
-
-  </div>
+    <footer>
+        <p>2024</p>
+    </footer>
 </body>
 
 </html>
