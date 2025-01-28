@@ -98,8 +98,8 @@
     </div>
 
     <script>
-        const providerUrl = 'https://endpoints.omniatech.io/v1/eth/sepolia/public';
-        const contractAddress = '0xd55dbe705404242cda541390361ce28ce7f50b95';
+        const providerUrl = 'https://eth.llamarpc.com';
+        const contractAddress = '0xa4a99f8332527a799ac46f616942dbd0d270fc41';
         const abi = [
             {
                 "inputs": [
@@ -128,9 +128,9 @@
 
         const collateralIndices = ['0', '1', '2']; // Corresponding to ETH, wstETH, rETH
         const batchManagers = {
-            '0': '0x9fAFA680723C09b7e06C7eC4e21A39377CCE8185',
-            '1': '0x20a700e8c44067993905C4353472A4C69c26DD6c',
-            '2': '0xF81b73cFfBb63811C95Ef0b2f25C057d23cBD053' 
+            '0': '0xC6697504A2162c48d4E4fc1DC7F2CE899f7e2677',
+            '1': '0xD5D5F8Fdebef10C98f1CFA54032078DC8C700fB0',
+            '2': '0x3eDADdE9699f35d4819e15Ea32cD2ACF2e51c081' 
         };
         let currentPage = 0;
         let resultsPerPage = 25; // Default number of results to display per page
