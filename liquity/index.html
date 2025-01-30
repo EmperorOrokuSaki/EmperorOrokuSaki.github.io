@@ -190,44 +190,45 @@
         }
 
         function displayResults() {
-            const resultBody = document.getElementById('resultBody');
-            const debtSummary = document.getElementById('debtSummary');
-            resultBody.innerHTML = '';
+    const resultBody = document.getElementById('resultBody');
+    const debtSummary = document.getElementById('debtSummary');
+    resultBody.innerHTML = '';
 
-            const collIndex = document.getElementById('collateralSelect').value;
-            const currentBatchManager = batchManagers[collIndex];
-            
-            const filteredResults = allResults.filter(item => item.debt > 0);
-            const paginatedResults = filteredResults.slice(currentPage * resultsPerPage, (currentPage + 1) * resultsPerPage);
+    const collIndex = document.getElementById('collateralSelect').value;
+    const currentBatchManager = batchManagers[collIndex];
 
-            // Calculate debt metrics
-            const metrics = calculateDebtMetrics(filteredResults, currentBatchManager);
+    const filteredResults = allResults.filter(item => BigInt(item.debt) > 0n);
+    const paginatedResults = filteredResults.slice(currentPage * resultsPerPage, (currentPage + 1) * resultsPerPage);
 
-            paginatedResults.forEach(item => {
-                const row = document.createElement('tr');
-                const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000' ? '—' : item.interestBatchManager;
-                const interestRate = (item.interestRate / 1e16).toFixed(2);
-                const debt = Math.floor(item.debt / 1e18);
+    // Calculate debt metrics
+    const metrics = calculateDebtMetrics(filteredResults, currentBatchManager);
 
-                if (Object.values(batchManagers).includes(item.interestBatchManager)) {
-                    row.classList.add('highlight');
-                }
+    paginatedResults.forEach(item => {
+        const row = document.createElement('tr');
+        const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000' ? '—' : item.interestBatchManager;
+        const interestRate = (BigInt(item.interestRate) / BigInt(1e16)).toString();  // Convert safely
+        const debt = (BigInt(item.debt) / BigInt(1e18)).toString();  // Prevent loss of precision
 
-                row.innerHTML = `<td>${batchManager}</td><td>${interestRate}</td><td>${debt}</td>`;
-                resultBody.appendChild(row);
-            });
-
-            // Display debt summary
-            debtSummary.innerHTML = `
-                Total Debt Above Batch Manager: ${Math.floor(metrics.higherDebt).toLocaleString()} BOLD 
-                (${metrics.percentage.toFixed(2)}% of Total Debt: ${Math.floor(metrics.totalDebt).toLocaleString()} BOLD)
-            `;
-
-            document.getElementById('resultTable').style.display = 'table';
-            document.getElementById('pagination').style.display = 'block';
-            document.getElementById('prevPage').disabled = currentPage === 0;
-            document.getElementById('nextPage').disabled = (currentPage + 1) * resultsPerPage >= filteredResults.length;
+        if (Object.values(batchManagers).includes(item.interestBatchManager)) {
+            row.classList.add('highlight');
         }
+
+        row.innerHTML = `<td>${batchManager}</td><td>${interestRate}</td><td>${debt}</td>`;
+        resultBody.appendChild(row);
+    });
+
+    // Display debt summary
+    debtSummary.innerHTML = `
+        Total Debt Above Batch Manager: ${metrics.higherDebt.toLocaleString()} BOLD 
+        (${metrics.percentage.toFixed(2)}% of Total Debt: ${metrics.totalDebt.toLocaleString()} BOLD)
+    `;
+
+    document.getElementById('resultTable').style.display = 'table';
+    document.getElementById('pagination').style.display = 'block';
+    document.getElementById('prevPage').disabled = currentPage === 0;
+    document.getElementById('nextPage').disabled = (currentPage + 1) * resultsPerPage >= filteredResults.length;
+}
+
 
 
         document.getElementById('fetchButton').addEventListener('click', fetchData);
