@@ -91,6 +91,11 @@
             </tr>
         </thead>
         <tbody id="resultBody"></tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" id="debtSummary" style="text-align: center; background-color: #4caf50; color: white;"></td>
+            </tr>
+        </tfoot>
     </table>
     <div class="pagination" id="pagination" style="display:none;">
         <button id="prevPage" disabled>Previous</button>
@@ -159,33 +164,71 @@
             displayResults();
         }
 
+                function calculateDebtMetrics(filteredResults, currentBatchManager) {
+            const batchManagerIndex = filteredResults.findIndex(
+                item => item.interestBatchManager.toLowerCase() === currentBatchManager.toLowerCase()
+            );
+            
+            if (batchManagerIndex === -1) return { higherDebt: 0, totalDebt: 0, percentage: 0 };
+            
+            let higherDebt = 0;
+            let totalDebt = 0;
+            
+            filteredResults.forEach((item, index) => {
+                const debt = Number(item.debt) / 1e18;
+                totalDebt += debt;
+                if (index < batchManagerIndex) {
+                    higherDebt += debt;
+                }
+            });
+            
+            return {
+                higherDebt,
+                totalDebt,
+                percentage: (higherDebt / totalDebt) * 100
+            };
+        }
+
         function displayResults() {
             const resultBody = document.getElementById('resultBody');
-            resultBody.innerHTML = ''; // Clear previous results
+            const debtSummary = document.getElementById('debtSummary');
+            resultBody.innerHTML = '';
 
+            const collIndex = document.getElementById('collateralSelect').value;
+            const currentBatchManager = batchManagers[collIndex];
+            
             const filteredResults = allResults.filter(item => item.debt > 0);
             const paginatedResults = filteredResults.slice(currentPage * resultsPerPage, (currentPage + 1) * resultsPerPage);
+
+            // Calculate debt metrics
+            const metrics = calculateDebtMetrics(filteredResults, currentBatchManager);
 
             paginatedResults.forEach(item => {
                 const row = document.createElement('tr');
                 const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000' ? '—' : item.interestBatchManager;
-                const interestRate = (item.interestRate / 1e16).toFixed(2); // Convert interest rate to percentage
-                const debt = Math.floor(item.debt / 1e18); // Convert debt to ETH without decimals
+                const interestRate = (item.interestRate / 1e16).toFixed(2);
+                const debt = Math.floor(item.debt / 1e18);
 
-                // Check if the batch manager is one of the hardcoded ones
                 if (Object.values(batchManagers).includes(item.interestBatchManager)) {
-                    row.classList.add('highlight'); // Add highlight class for hardcoded batch managers
+                    row.classList.add('highlight');
                 }
 
                 row.innerHTML = `<td>${batchManager}</td><td>${interestRate}</td><td>${debt}</td>`;
                 resultBody.appendChild(row);
             });
 
+            // Display debt summary
+            debtSummary.innerHTML = `
+                Total Debt Above Batch Manager: ${Math.floor(metrics.higherDebt).toLocaleString()} BOLD 
+                (${metrics.percentage.toFixed(2)}% of Total Debt: ${Math.floor(metrics.totalDebt).toLocaleString()} BOLD)
+            `;
+
             document.getElementById('resultTable').style.display = 'table';
             document.getElementById('pagination').style.display = 'block';
             document.getElementById('prevPage').disabled = currentPage === 0;
             document.getElementById('nextPage').disabled = (currentPage + 1) * resultsPerPage >= filteredResults.length;
         }
+
 
         document.getElementById('fetchButton').addEventListener('click', fetchData);
         document.getElementById('prevPage').addEventListener('click', () => {
