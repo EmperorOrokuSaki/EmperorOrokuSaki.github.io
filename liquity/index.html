@@ -51,8 +51,8 @@
             background-color: #4a4a4a;
         }
         .highlight {
-            background-color: #00ff73 !important; /* Highlight color for batch managers */
-            color: #000; /* Text color for better contrast */
+            background-color: #00ff73 !important;
+            color: #000;
         }
         .pagination {
             margin-top: 20px;
@@ -131,15 +131,16 @@
             }
         ];
 
-        const collateralIndices = ['0', '1', '2']; // Corresponding to ETH, wstETH, rETH
+        const collateralIndices = ['0', '1', '2'];
         const batchManagers = {
             '0': '0x8cf502CbA12A2C2c387aa51976efeB2754bA8460',
             '1': '0x00429b87848a386a7c45B7a3AbF194A3A3d7a04b',
             '2': '0x167E36d835Fd5502844a4E008E880e18E4894afD' 
         };
         let currentPage = 0;
-        let resultsPerPage = 25; // Default number of results to display per page
-        let allResults = [];
+        let resultsPerPage = 25;
+        let allResults = {};
+        let totalDebtAboveManagers = {};
 
         function serializeBigInt(obj) {
             return JSON.parse(JSON.stringify(obj, (key, value) =>
@@ -147,91 +148,106 @@
             ));
         }
 
-        async function fetchData() {
-            const collIndex = document.getElementById('collateralSelect').value;
+        async function fetchAllCollateralData() {
             const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
             const contract = new web3.eth.Contract(abi, contractAddress);
-            allResults = [];
-
-            try {
-                const result = await contract.methods.getDebtPerInterestRateAscending(collIndex, 0, 100).call();
-                const serializedResult = serializeBigInt(result);
-                allResults.push(...serializedResult[0]);
-            } catch (error) {
-                console.error(error);
+            
+            for (const collIndex of collateralIndices) {
+                try {
+                    const result = await contract.methods.getDebtPerInterestRateAscending(collIndex, 0, 100).call();
+                    const serializedResult = serializeBigInt(result);
+                    allResults[collIndex] = serializedResult[0].filter(item => BigInt(item.debt) > 0n);
+                } catch (error) {
+                    console.error(`Error fetching data for collateral ${collIndex}:`, error);
+                    allResults[collIndex] = [];
+                }
             }
-
+            
             displayResults();
         }
 
-                function calculateDebtMetrics(filteredResults, currentBatchManager) {
-            const batchManagerIndex = filteredResults.findIndex(
-                item => item.interestBatchManager.toLowerCase() === currentBatchManager.toLowerCase()
-            );
-            
-            if (batchManagerIndex === -1) return { higherDebt: 0, totalDebt: 0, percentage: 0 };
-            
-            let higherDebt = 0;
-            let totalDebt = 0;
-            
-            filteredResults.forEach((item, index) => {
-                const debt = Number(item.debt) / 1e18;
-                totalDebt += debt;
-                if (index < batchManagerIndex) {
-                    higherDebt += debt;
+        function getManagerRate(manager) {
+            // Find the manager's rate across all collaterals
+            for (const collIndex of collateralIndices) {
+                const results = allResults[collIndex] || [];
+                const managerData = results.find(
+                    item => item.interestBatchManager.toLowerCase() === manager.toLowerCase()
+                );
+                if (managerData) {
+                    return BigInt(managerData.interestRate);
                 }
-            });
+            }
+            return null;
+        }
+
+        function calculateDebtAboveManager(manager) {
+            const managerRate = getManagerRate(manager);
+            if (!managerRate) return 0;
             
-            return {
-                higherDebt,
-                totalDebt,
-                percentage: (higherDebt / totalDebt) * 100
-            };
+            // Sum up debt across all collaterals for troves with lower rates
+            let totalDebt = 0;
+            for (const collIndex of collateralIndices) {
+                const results = allResults[collIndex] || [];
+                for (const item of results) {
+                    if (BigInt(item.interestRate) < managerRate) {
+                        totalDebt += Number(item.debt) / 1e18;
+                    }
+                }
+            }
+            return totalDebt;
         }
 
         function displayResults() {
-    const resultBody = document.getElementById('resultBody');
-    const debtSummary = document.getElementById('debtSummary');
-    resultBody.innerHTML = '';
+            const resultBody = document.getElementById('resultBody');
+            const debtSummary = document.getElementById('debtSummary');
+            resultBody.innerHTML = '';
 
-    const collIndex = document.getElementById('collateralSelect').value;
-    const currentBatchManager = batchManagers[collIndex];
+            const collIndex = document.getElementById('collateralSelect').value;
+            const currentResults = allResults[collIndex] || [];
+            const paginatedResults = currentResults.slice(
+                currentPage * resultsPerPage,
+                (currentPage + 1) * resultsPerPage
+            );
 
-    const filteredResults = allResults.filter(item => BigInt(item.debt) > 0n);
-    const paginatedResults = filteredResults.slice(currentPage * resultsPerPage, (currentPage + 1) * resultsPerPage);
+            paginatedResults.forEach(item => {
+                const row = document.createElement('tr');
+                const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000'
+                    ? '—'
+                    : item.interestBatchManager;
+                    
+                // Show interest rate with 4 decimal places
+                const interestRate = (Number(item.interestRate) / 1e16).toFixed(4);
+                const debt = (Number(item.debt) / 1e18).toFixed(2);
 
-    // Calculate debt metrics
-    const metrics = calculateDebtMetrics(filteredResults, currentBatchManager);
+                if (Object.values(batchManagers).includes(item.interestBatchManager)) {
+                    row.classList.add('highlight');
+                }
 
-    paginatedResults.forEach(item => {
-        const row = document.createElement('tr');
-        const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000' ? '—' : item.interestBatchManager;
-        const interestRate = (BigInt(item.interestRate) / BigInt(1e16)).toString();  // Convert safely
-        const debt = (BigInt(item.debt) / BigInt(1e18)).toString();  // Prevent loss of precision
+                row.innerHTML = `
+                    <td>${batchManager}</td>
+                    <td>${interestRate}</td>
+                    <td>${debt}</td>
+                `;
+                resultBody.appendChild(row);
+            });
 
-        if (Object.values(batchManagers).includes(item.interestBatchManager)) {
-            row.classList.add('highlight');
+            const currentBatchManager = batchManagers[collIndex];
+            const totalDebtAbove = calculateDebtAboveManager(currentBatchManager);
+            const totalDebt = Object.values(allResults).reduce((sum, results) => 
+                sum + results.reduce((colSum, item) => colSum + Number(item.debt) / 1e18, 0), 0);
+
+            debtSummary.innerHTML = `
+                Total Debt Below Manager's Rate (Across All Collaterals): ${totalDebtAbove.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} BOLD 
+                (${((totalDebtAbove / totalDebt) * 100).toFixed(2)}% of Total Debt: ${totalDebt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} BOLD)
+            `;
+
+            document.getElementById('resultTable').style.display = 'table';
+            document.getElementById('pagination').style.display = 'block';
+            document.getElementById('prevPage').disabled = currentPage === 0;
+            document.getElementById('nextPage').disabled = (currentPage + 1) * resultsPerPage >= currentResults.length;
         }
 
-        row.innerHTML = `<td>${batchManager}</td><td>${interestRate}</td><td>${debt}</td>`;
-        resultBody.appendChild(row);
-    });
-
-    // Display debt summary
-    debtSummary.innerHTML = `
-        Total Debt Above Batch Manager: ${metrics.higherDebt.toLocaleString()} BOLD 
-        (${metrics.percentage.toFixed(2)}% of Total Debt: ${metrics.totalDebt.toLocaleString()} BOLD)
-    `;
-
-    document.getElementById('resultTable').style.display = 'table';
-    document.getElementById('pagination').style.display = 'block';
-    document.getElementById('prevPage').disabled = currentPage === 0;
-    document.getElementById('nextPage').disabled = (currentPage + 1) * resultsPerPage >= filteredResults.length;
-}
-
-
-
-        document.getElementById('fetchButton').addEventListener('click', fetchData);
+        document.getElementById('fetchButton').addEventListener('click', fetchAllCollateralData);
         document.getElementById('prevPage').addEventListener('click', () => {
             if (currentPage > 0) {
                 currentPage--;
@@ -239,14 +255,20 @@
             }
         });
         document.getElementById('nextPage').addEventListener('click', () => {
-            if ((currentPage + 1) * resultsPerPage < allResults.length) {
+            const collIndex = document.getElementById('collateralSelect').value;
+            const currentResults = allResults[collIndex] || [];
+            if ((currentPage + 1) * resultsPerPage < currentResults.length) {
                 currentPage++;
                 displayResults();
             }
         });
         document.getElementById('itemsPerPageSelect').addEventListener('change', (event) => {
             resultsPerPage = parseInt(event.target.value);
-            currentPage = 0; // Reset to the first page
+            currentPage = 0;
+            displayResults();
+        });
+        document.getElementById('collateralSelect').addEventListener('change', () => {
+            currentPage = 0;
             displayResults();
         });
     </script>
