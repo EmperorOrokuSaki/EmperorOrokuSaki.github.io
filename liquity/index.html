@@ -4,73 +4,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liquity Interest Rate Monitoring</title>
     <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <title>Liquity Interest Rate Terminal</title>
     <style>
+        @keyframes glitch {
+            0% {
+                text-shadow: 2px 0 #0f0, -2px 0 #f00;
+            }
+
+            25% {
+                text-shadow: -2px 0 #0f0, 2px 0 #f00;
+            }
+
+            50% {
+                text-shadow: 1px 0 #0f0, -1px 0 #f00;
+            }
+
+            75% {
+                text-shadow: -1px 0 #0f0, 1px 0 #f00;
+            }
+
+            100% {
+                text-shadow: 2px 0 #0f0, -2px 0 #f00;
+            }
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes matrix-rain {
+            0% {
+                top: -50%;
+            }
+
+            100% {
+                top: 150%;
+            }
+        }
+
         body {
-            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 20px;
-            background-color: #2c2c2c;
-            color: #e0e0e0;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        h1,
-        h2 {
-            color: #76ff03;
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg,
+                    rgba(0, 255, 0, 0.03) 0px,
+                    rgba(0, 255, 0, 0.03) 1px,
+                    transparent 1px,
+                    transparent 2px);
+            pointer-events: none;
+            animation: scanline 8s linear infinite;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .matrix-character {
+            position: absolute;
+            color: #0f0;
+            font-size: 14px;
+            animation: matrix-rain 20s linear infinite;
+            user-select: none;
+        }
+
+        h1 {
             text-align: center;
-            text-shadow: 0 0 10px #76ff03;
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #0f0;
+            text-transform: uppercase;
+            animation: glitch 3s infinite;
+            position: relative;
         }
 
-        button,
-        select {
-            padding: 10px 15px;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin: 5px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+        h1::before {
+            content: "╔══════════════════════════════════╗";
+            display: block;
+            margin-bottom: 10px;
         }
 
-        button:hover,
-        select:hover {
-            background-color: #388e3c;
+        h1::after {
+            content: "╚══════════════════════════════════╝";
+            display: block;
+            margin-top: 10px;
         }
 
         .view-selector {
             text-align: center;
             margin: 20px 0;
+            border: 1px solid #0f0;
+            padding: 10px;
+            position: relative;
+        }
+
+        .view-selector::before {
+            content: "┌────────────────────────┐";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        button {
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        button:hover::after {
+            content: ">";
+            position: absolute;
+            right: 5px;
+            animation: blink 1s infinite;
+        }
+
+        select {
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px;
+            margin: 5px;
+            font-family: 'Courier New', monospace;
         }
 
         table {
-            margin-top: 20px;
-            border-collapse: collapse;
             width: 100%;
-            background-color: #3a3a3a;
-            border: 1px solid #76ff03;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 1px solid #0f0;
         }
 
         th,
         td {
-            border: 1px solid #76ff03;
+            border: 1px solid #0f0;
             padding: 8px;
             text-align: left;
         }
 
         th {
-            background-color: #4caf50;
-            color: white;
+            background: #0f0;
+            color: #000;
         }
 
-        tr:nth-child(even) {
-            background-color: #4a4a4a;
+        tr:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+            }
+        }
+
+        @keyframes scan {
+            0% {
+                background-position: 0% 0%;
+            }
+
+            100% {
+                background-position: 100% 0%;
+            }
+        }
+
+        table {
+            position: relative;
+            /* For absolute positioning context */
         }
 
         .highlight {
-            background-color: #00ff73 !important;
-            color: #000;
+            background: linear-gradient(90deg,
+                    rgba(0, 255, 0, 0.1) 0%,
+                    rgba(0, 255, 0, 0.2) 25%,
+                    rgba(0, 255, 0, 0.2) 75%,
+                    rgba(0, 255, 0, 0.1) 100%);
+            background-size: 200% 100%;
+            animation: scan 2s linear infinite;
+            position: relative;
+        }
+
+        .highlight td {
+            position: relative;
+            text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+            border-left: 2px solid #0f0;
+            border-right: 2px solid #0f0;
+        }
+
+        /* Indicator moved to first cell */
+        .highlight td:first-child::before {
+            content: "▶";
+            position: absolute;
+            left: 5px;
+            color: #0f0;
+            animation: blink 1s infinite;
+        }
+
+        .highlight::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid #0f0;
+            animation: pulse-border 2s infinite;
+            pointer-events: none;
         }
 
         .pagination {
@@ -78,94 +274,113 @@
             text-align: center;
         }
 
-        .pagination button {
-            margin: 0 5px;
-        }
-
-        select {
-            background-color: #3a3a3a;
-            color: #76ff03;
-            border: 1px solid #76ff03;
-        }
-
-        .manager-summary {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #3a3a3a;
-            border: 1px solid #76ff03;
-            border-radius: 5px;
-        }
-
         .view-container {
             display: none;
+            border: 1px solid #0f0;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
         }
 
         .view-container.active {
             display: block;
         }
+
+        .view-container::before {
+            content: "╔═══ DATA VIEW ═══╗";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #000;
+            padding: 0 10px;
+        }
+
+        #debtSummary,
+        #totalManagerSummary {
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #0f0;
+            margin-top: 10px;
+        }
+
+        .loading::after {
+            content: "_";
+            animation: blink 1s infinite;
+        }
+
+        .analysis-row {
+            display: none;
+            /* Initially hidden */
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            font-family: monospace;
+            color: #00ff00;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 
 <body>
-    <h1>Liquity Interest Rate Monitoring</h1>
+    <div class="matrix-bg"></div>
+    <h1>LIQUITY INTEREST RATE TERMINAL</h1>
 
     <div class="view-selector">
-        <button id="showRatesView">Interest Rates View</button>
-        <button id="showManagerView">Manager Summary View</button>
+        <button id="showRatesView">[RATES]</button>
+        <button id="showManagerView">[MANAGER]</button>
     </div>
 
     <div id="ratesView" class="view-container active">
         <select id="collateralSelect">
-            <option value="0">ETH</option>
-            <option value="1">wstETH</option>
-            <option value="2">rETH</option>
+            <option value="0">[ETH]</option>
+            <option value="1">[wstETH]</option>
+            <option value="2">[rETH]</option>
         </select>
         <select id="itemsPerPageSelect">
-            <option value="15">15</option>
-            <option value="25" selected>25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
+            <option value="15">[15]</option>
+            <option value="25" selected>[25]</option>
+            <option value="50">[50]</option>
+            <option value="100">[100]</option>
         </select>
-        <button id="fetchButton">Fetch Data</button>
+        <button id="fetchButton">INITIALIZE_FETCH()</button>
+        <div id="debtSummary" class="analysis-row"></div>
         <table id="resultTable" style="display:none;">
             <thead>
                 <tr>
-                    <th>Batch Manager</th>
-                    <th>Interest Rate (%)</th>
-                    <th>Debt (in BOLD)</th>
+                    <th>BATCH_MANAGER</th>
+                    <th>INTEREST_RATE(%)</th>
+                    <th>DEBT(BOLD)</th>
                 </tr>
             </thead>
             <tbody id="resultBody"></tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="3" id="debtSummary"
-                        style="text-align: center; background-color: #4caf50; color: white;"></td>
-                </tr>
-            </tfoot>
         </table>
+
         <div class="pagination" id="pagination" style="display:none;">
-            <button id="prevPage" disabled>Previous</button>
-            <button id="nextPage">Next</button>
+            <button id="prevPage">
+                <<< /button>
+                    <button id="nextPage">>></button>
         </div>
     </div>
 
     <div id="managerView" class="view-container">
         <div class="manager-summary">
-            <h2>Manager Summary</h2>
+            <h2>| MANAGER_SUMMARY |</h2>
             <table id="managerTable">
                 <thead>
                     <tr>
-                        <th>Manager Address</th>
-                        <th>Market</th>
-                        <th>Total BOLD Managed</th>
-                        <th>Market Share (%)</th>
+                        <th>MANAGER_ADDR</th>
+                        <th>MARKET</th>
+                        <th>TOTAL_BOLD</th>
+                        <th>MARKET_SHARE(%)</th>
                     </tr>
                 </thead>
                 <tbody id="managerBody"></tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4" id="totalManagerSummary"
-                            style="text-align: center; background-color: #4caf50; color: white;"></td>
+                        <td colspan="4" id="totalManagerSummary"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -173,25 +388,77 @@
     </div>
 
     <script>
-        async function fetchAllCollateralData() {
-            const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
-            const contract = new web3.eth.Contract(abi, contractAddress);
+        // Matrix background effect
+        function createMatrixBackground() {
+            const matrixBg = document.querySelector('.matrix-bg');
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*';
+            const columns = Math.floor(window.innerWidth / 14);
 
-            for (const collIndex of collateralIndices) {
-                try {
-                    const result = await contract.methods.getDebtPerInterestRateAscending(collIndex, 0, 100).call();
-                    const serializedResult = serializeBigInt(result);
-                    allResults[collIndex] = serializedResult[0].filter(item => BigInt(item.debt) > 0n);
-                } catch (error) {
-                    console.error(`Error fetching data for collateral ${collIndex}:`, error);
-                    allResults[collIndex] = [];
-                }
+            for (let i = 0; i < columns; i++) {
+                const character = document.createElement('span');
+                character.className = 'matrix-character';
+                character.style.left = `${i * 14}px`;
+                character.style.animationDelay = `${Math.random() * 20}s`;
+                character.textContent = characters[Math.floor(Math.random() * characters.length)];
+                matrixBg.appendChild(character);
             }
 
-            // Update both views when data is fetched
-            displayResults();
-            calculateManagerSummary();
+            setInterval(() => {
+                document.querySelectorAll('.matrix-character').forEach(char => {
+                    if (Math.random() > 0.98) {
+                        char.textContent = characters[Math.floor(Math.random() * characters.length)];
+                    }
+                });
+            }, 100);
         }
+
+        // Terminal style typing effect
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+            return new Promise(resolve => {
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    } else {
+                        resolve();
+                    }
+                }
+                type();
+            });
+        }
+
+        // Loading animation
+        function showLoading(element) {
+            element.classList.add('loading');
+            element.textContent = 'INITIALIZING_FETCH';
+            let dots = 0;
+            const loadingInterval = setInterval(() => {
+                dots = (dots + 1) % 4;
+                element.textContent = 'INITIALIZING_FETCH' + '.'.repeat(dots);
+            }, 500);
+            return () => {
+                clearInterval(loadingInterval);
+                element.classList.remove('loading');
+            };
+        }
+
+        // Glitch effect for view switching
+        function glitchTransition(fromElement, toElement) {
+            fromElement.style.animation = 'glitch 0.3s infinite';
+            setTimeout(() => {
+                fromElement.classList.remove('active');
+                toElement.classList.add('active');
+                fromElement.style.animation = '';
+                toElement.style.animation = 'glitch 0.3s infinite';
+                setTimeout(() => {
+                    toElement.style.animation = '';
+                }, 300);
+            }, 300);
+        }
+
         const providerUrl = 'https://eth.llamarpc.com';
         const contractAddress = '0xa4a99f8332527a799ac46f616942dbd0d270fc41';
         const abi = [
@@ -222,14 +489,14 @@
 
         const collateralIndices = ['0', '1', '2'];
         const batchManagers = {
-            '0': '0x8cf502CbA12A2C2c387aa51976efeB2754bA8460',
+            '0': '0x8cf502CbA12A2c2c387aa51976efeB2754bA8460',
             '1': '0x00429b87848a386a7c45B7a3AbF194A3A3d7a04b',
             '2': '0x167E36d835Fd5502844a4E008E880e18E4894afD'
         };
+
         let currentPage = 0;
         let resultsPerPage = 25;
         let allResults = {};
-        let totalDebtAboveManagers = {};
 
         function serializeBigInt(obj) {
             return JSON.parse(JSON.stringify(obj, (key, value) =>
@@ -237,6 +504,192 @@
             ));
         }
 
+        async function fetchAllCollateralData() {
+            // Create or get the analysis row
+            let debtSummary = document.getElementById('debtSummary');
+            if (!debtSummary) {
+                debtSummary = document.createElement('div');
+                debtSummary.id = 'debtSummary';
+                debtSummary.className = 'analysis-row';
+                const resultTable = document.getElementById('resultTable');
+                resultTable.parentNode.insertBefore(debtSummary, resultTable);
+            }
+
+            // Make analysis row visible and show initial loading state
+            debtSummary.style.display = 'block';
+            debtSummary.innerHTML = '| INITIALIZING DATA FETCH |';
+
+            try {
+                const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
+                const contract = new web3.eth.Contract(abi, contractAddress);
+
+                for (const collIndex of collateralIndices) {
+                    debtSummary.innerHTML = `| FETCHING_COLLATERAL_${collIndex}_DATA |`;
+                    try {
+                        const result = await contract.methods
+                            .getDebtPerInterestRateAscending(collIndex, 0, 100)
+                            .call();
+                        const serializedResult = serializeBigInt(result);
+                        allResults[collIndex] = serializedResult[0].filter(item => BigInt(item.debt) > 0n);
+                    } catch (error) {
+                        console.error(`Error fetching data for collateral ${collIndex}:`, error);
+                        allResults[collIndex] = [];
+                    }
+                }
+
+                debtSummary.innerHTML = '| PROCESSING_DATA |';
+                await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause for visual feedback
+
+                displayResults();
+                calculateManagerSummary();
+            } catch (error) {
+                debtSummary.innerHTML = '| ERROR: FETCH_FAILED |';
+                console.error('Error:', error);
+            }
+        }
+
+        async function displayResults() {
+            const resultBody = document.getElementById('resultBody');
+            resultBody.innerHTML = '';
+
+            const debtSummary = document.getElementById('debtSummary');
+            const collIndex = document.getElementById('collateralSelect').value;
+            const currentResults = allResults[collIndex] || [];
+            const paginatedResults = currentResults.slice(
+                currentPage * resultsPerPage,
+                (currentPage + 1) * resultsPerPage
+            );
+
+            // Calculate summary data
+            const currentBatchManager = batchManagers[collIndex];
+            const totalDebtAbove = calculateDebtAboveManager(currentBatchManager);
+            const totalDebt = Object.values(allResults).reduce((sum, results) =>
+                sum + results.reduce((colSum, item) => colSum + Number(item.debt) / 1e18, 0), 0);
+
+            // Update analysis row with summary data
+            debtSummary.innerHTML = `| [ANALYSIS_COMPLETE] | DEBT_BELOW_MANAGER: ${totalDebtAbove.toFixed(3)} BOLD | TOTAL_DEBT: ${totalDebt.toFixed(2)} BOLD | PERCENTAGE: ${((totalDebtAbove / totalDebt) * 100).toFixed(2)}% |`;
+
+            // Populate table data
+            for (const item of paginatedResults) {
+                const row = document.createElement('tr');
+                const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000'
+                    ? '—'
+                    : item.interestBatchManager;
+
+                // Interest rate in x.xx format (2 decimal places, no leading zeros)
+                const interestRate = (Number(item.interestRate) / 1e16).toFixed(2);
+
+                // Debt in xxx_xxx_xxx format (no decimals)
+                const debtNum = Math.floor(Number(item.debt) / 1e18).toString();
+                const debt = debtNum.replace(/\B(?=(\d{3})+(?!\d))/g, "_");
+
+                const isManagedAddress = Object.values(batchManagers)
+                    .map(addr => addr.toLowerCase())
+                    .includes(item.interestBatchManager.toLowerCase());
+
+                if (isManagedAddress) {
+                    row.classList.add('highlight');
+                }
+
+                row.innerHTML = `
+            <td><code style="padding-left: ${isManagedAddress ? '20px' : '0'}">${batchManager}</code></td>
+            <td>${interestRate}%</td>
+            <td>${debt}_BOLD</td>
+        `;
+                resultBody.appendChild(row);
+            }
+
+            document.getElementById('resultTable').style.display = 'table';
+            document.getElementById('pagination').style.display = 'block';
+            document.getElementById('prevPage').disabled = currentPage === 0;
+            document.getElementById('nextPage').disabled =
+                (currentPage + 1) * resultsPerPage >= currentResults.length;
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            createMatrixBackground();
+
+            // View switching
+            document.getElementById('showRatesView').addEventListener('click', () => {
+                glitchTransition(
+                    document.getElementById('managerView'),
+                    document.getElementById('ratesView')
+                );
+            });
+
+            document.getElementById('showManagerView').addEventListener('click', async () => {
+                glitchTransition(
+                    document.getElementById('ratesView'),
+                    document.getElementById('managerView')
+                );
+
+                if (Object.keys(allResults).length === 0) {
+                    await fetchAllCollateralData();
+                }
+                calculateManagerSummary();
+            });
+
+            // Other event listeners
+            document.getElementById('fetchButton').addEventListener('click', fetchAllCollateralData);
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    displayResults();
+                }
+            });
+            document.getElementById('nextPage').addEventListener('click', () => {
+                const collIndex = document.getElementById('collateralSelect').value;
+                const currentResults = allResults[collIndex] || [];
+                if ((currentPage + 1) * resultsPerPage < currentResults.length) {
+                    currentPage++;
+                    displayResults();
+                }
+            });
+            document.getElementById('itemsPerPageSelect').addEventListener('change', (event) => {
+                resultsPerPage = parseInt(event.target.value);
+                currentPage = 0;
+                displayResults();
+            });
+            document.getElementById('collateralSelect').addEventListener('change', () => {
+                currentPage = 0;
+                displayResults();
+            });
+            const debtSummary = document.getElementById('debtSummary');
+            if (debtSummary) {
+                debtSummary.style.display = 'none';
+            }
+
+        });
+
+        function getManagerRate(manager) {
+            // Find the manager's rate across all collaterals
+            for (const collIndex of collateralIndices) {
+                const results = allResults[collIndex] || [];
+                const managerData = results.find(
+                    item => item.interestBatchManager.toLowerCase() === manager.toLowerCase()
+                );
+                if (managerData) {
+                    return BigInt(managerData.interestRate);
+                }
+            }
+            return null;
+        } function calculateDebtAboveManager(manager) {
+            const managerRate = getManagerRate(manager);
+            if (!managerRate) return 0;
+
+            // Sum up debt across all collaterals for troves with lower rates
+            let totalDebt = 0;
+            for (const collIndex of collateralIndices) {
+                const results = allResults[collIndex] || [];
+                for (const item of results) {
+                    if (BigInt(item.interestRate) < managerRate) {
+                        totalDebt += Number(item.debt) / 1e18;
+                    }
+                }
+            }
+            return totalDebt;
+        }
         function calculateManagerSummary() {
             const managerSummary = {};
             const marketTotals = {};
@@ -293,130 +746,6 @@
                 (${((totalManaged / grandTotal) * 100).toFixed(2)}% of Total Supply)
             `;
         }
-
-        // Add event listeners for view switching
-        document.getElementById('showRatesView').addEventListener('click', () => {
-            document.getElementById('ratesView').classList.add('active');
-            document.getElementById('managerView').classList.remove('active');
-        });
-
-        document.getElementById('showManagerView').addEventListener('click', async () => {
-            document.getElementById('ratesView').classList.remove('active');
-            document.getElementById('managerView').classList.add('active');
-
-            // Auto fetch and display manager data
-            if (Object.keys(allResults).length === 0) {
-                await fetchAllCollateralData();
-            }
-            calculateManagerSummary();
-        });
-
-
-        function getManagerRate(manager) {
-            // Find the manager's rate across all collaterals
-            for (const collIndex of collateralIndices) {
-                const results = allResults[collIndex] || [];
-                const managerData = results.find(
-                    item => item.interestBatchManager.toLowerCase() === manager.toLowerCase()
-                );
-                if (managerData) {
-                    return BigInt(managerData.interestRate);
-                }
-            }
-            return null;
-        }
-
-        function calculateDebtAboveManager(manager) {
-            const managerRate = getManagerRate(manager);
-            if (!managerRate) return 0;
-
-            // Sum up debt across all collaterals for troves with lower rates
-            let totalDebt = 0;
-            for (const collIndex of collateralIndices) {
-                const results = allResults[collIndex] || [];
-                for (const item of results) {
-                    if (BigInt(item.interestRate) < managerRate) {
-                        totalDebt += Number(item.debt) / 1e18;
-                    }
-                }
-            }
-            return totalDebt;
-        }
-
-        function displayResults() {
-            const resultBody = document.getElementById('resultBody');
-            const debtSummary = document.getElementById('debtSummary');
-            resultBody.innerHTML = '';
-
-            const collIndex = document.getElementById('collateralSelect').value;
-            const currentResults = allResults[collIndex] || [];
-            const paginatedResults = currentResults.slice(
-                currentPage * resultsPerPage,
-                (currentPage + 1) * resultsPerPage
-            );
-
-            paginatedResults.forEach(item => {
-                const row = document.createElement('tr');
-                const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000'
-                    ? '—'
-                    : item.interestBatchManager;
-
-                // Show interest rate with 4 decimal places
-                const interestRate = (Number(item.interestRate) / 1e16).toFixed(4);
-                const debt = (Number(item.debt) / 1e18).toFixed(2);
-
-                if (Object.values(batchManagers).includes(item.interestBatchManager)) {
-                    row.classList.add('highlight');
-                }
-
-                row.innerHTML = `
-                    <td>${batchManager}</td>
-                    <td>${interestRate}</td>
-                    <td>${debt}</td>
-                `;
-                resultBody.appendChild(row);
-            });
-
-            const currentBatchManager = batchManagers[collIndex];
-            const totalDebtAbove = calculateDebtAboveManager(currentBatchManager);
-            const totalDebt = Object.values(allResults).reduce((sum, results) =>
-                sum + results.reduce((colSum, item) => colSum + Number(item.debt) / 1e18, 0), 0);
-
-            debtSummary.innerHTML = `
-                Total Debt Below Manager's Rate (Across All Collaterals): ${totalDebtAbove.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} BOLD 
-                (${((totalDebtAbove / totalDebt) * 100).toFixed(2)}% of Total Debt: ${totalDebt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} BOLD)
-            `;
-
-            document.getElementById('resultTable').style.display = 'table';
-            document.getElementById('pagination').style.display = 'block';
-            document.getElementById('prevPage').disabled = currentPage === 0;
-            document.getElementById('nextPage').disabled = (currentPage + 1) * resultsPerPage >= currentResults.length;
-        }
-
-        document.getElementById('fetchButton').addEventListener('click', fetchAllCollateralData);
-        document.getElementById('prevPage').addEventListener('click', () => {
-            if (currentPage > 0) {
-                currentPage--;
-                displayResults();
-            }
-        });
-        document.getElementById('nextPage').addEventListener('click', () => {
-            const collIndex = document.getElementById('collateralSelect').value;
-            const currentResults = allResults[collIndex] || [];
-            if ((currentPage + 1) * resultsPerPage < currentResults.length) {
-                currentPage++;
-                displayResults();
-            }
-        });
-        document.getElementById('itemsPerPageSelect').addEventListener('change', (event) => {
-            resultsPerPage = parseInt(event.target.value);
-            currentPage = 0;
-            displayResults();
-        });
-        document.getElementById('collateralSelect').addEventListener('change', () => {
-            currentPage = 0;
-            displayResults();
-        });
     </script>
 </body>
 
