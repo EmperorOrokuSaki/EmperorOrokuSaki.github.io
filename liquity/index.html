@@ -459,6 +459,7 @@
             }, 300);
         }
 
+        let cachedUnbackedData = null;
         const providerUrl = 'https://eth.llamarpc.com';
         const contractAddress = '0xa4a99f8332527a799ac46f616942dbd0d270fc41';
         const abi = [
@@ -510,28 +511,6 @@
             "stateMutability": "nonpayable",
             "type": "function"
         }];
-        async function getUnbackedPortions() {
-            const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
-            let unbackedPortions = {};
-            let totalUnbacked = 0n;
-
-            for (const [index, address] of Object.entries(marketContracts)) {
-                const contract = new web3.eth.Contract(marketAbi, address);
-                try {
-                    const result = await contract.methods.getUnbackedPortionPriceAndRedeemability().call();
-                    unbackedPortions[index] = BigInt(result[0]);
-                    totalUnbacked += BigInt(result[0]);
-                    console.log(`Market ${index}:`);
-                    console.log(`- Unbacked portion: ${result[0]}`);
-                    console.log(`- Running total unbacked: ${totalUnbacked}`);
-                } catch (error) {
-                    console.error(`Error getting unbacked portion for market ${index}:`, error);
-                    unbackedPortions[index] = 0n;
-                }
-            }
-
-            return { unbackedPortions, totalUnbacked };
-        }
 
         async function calculateMarketMetrics(collIndex) {
             const currentResults = allResults[collIndex] || [];
@@ -584,6 +563,85 @@
                 percentage
             };
         }
+        
+        async function getUnbackedPortions() {
+            // Return cached data if available
+            if (cachedUnbackedData) {
+                return cachedUnbackedData;
+            }
+
+            const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
+            let unbackedPortions = {};
+            let totalUnbacked = 0n;
+
+            for (const [index, address] of Object.entries(marketContracts)) {
+                const contract = new web3.eth.Contract(marketAbi, address);
+                try {
+                    const result = await contract.methods.getUnbackedPortionPriceAndRedeemability().call();
+                    unbackedPortions[index] = BigInt(result[0]);
+                    totalUnbacked += BigInt(result[0]);
+                    console.log(`Market ${index}:`);
+                    console.log(`- Unbacked portion: ${result[0]}`);
+                    console.log(`- Running total unbacked: ${totalUnbacked}`);
+                } catch (error) {
+                    console.error(`Error getting unbacked portion for market ${index}:`, error);
+                    unbackedPortions[index] = 0n;
+                }
+            }
+
+            // Cache the results
+            cachedUnbackedData = { unbackedPortions, totalUnbacked };
+            return cachedUnbackedData;
+        }
+
+        async function fetchAllCollateralData() {
+            let debtSummary = document.getElementById('debtSummary');
+            if (!debtSummary) {
+                debtSummary = document.createElement('div');
+                debtSummary.id = 'debtSummary';
+                debtSummary.className = 'analysis-row';
+                const resultTable = document.getElementById('resultTable');
+                resultTable.parentNode.insertBefore(debtSummary, resultTable);
+            }
+
+            debtSummary.style.display = 'block';
+            debtSummary.innerHTML = '| INITIALIZING DATA FETCH |';
+
+            try {
+                // Fetch unbacked portions first
+                if (!cachedUnbackedData) {
+                    debtSummary.innerHTML = '| FETCHING_UNBACKED_DATA |';
+                    await getUnbackedPortions();
+                }
+
+                const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
+                const contract = new web3.eth.Contract(abi, contractAddress);
+
+                for (const collIndex of collateralIndices) {
+                    debtSummary.innerHTML = `| FETCHING_COLLATERAL_${collIndex}_DATA |`;
+                    try {
+                        const result = await contract.methods
+                            .getDebtPerInterestRateAscending(collIndex, 0, 100)
+                            .call();
+                        const serializedResult = serializeBigInt(result);
+                        allResults[collIndex] = serializedResult[0].filter(item => BigInt(item.debt) > 0n);
+                    } catch (error) {
+                        console.error(`Error fetching data for collateral ${collIndex}:`, error);
+                        allResults[collIndex] = [];
+                    }
+                }
+
+                debtSummary.innerHTML = '| PROCESSING_DATA |';
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                displayResults();
+                calculateManagerSummary();
+            } catch (error) {
+                debtSummary.innerHTML = '| ERROR: FETCH_FAILED |';
+                console.error('Error:', error);
+            }
+        }
+
 
         async function displayResults() {
             const resultBody = document.getElementById('resultBody');
@@ -750,8 +808,20 @@
             });
             document.getElementById('collateralSelect').addEventListener('change', () => {
                 currentPage = 0;
-                displayResults();
+                if (Object.keys(allResults).length > 0) {
+                    displayResults();
+                }
             });
+
+            // Add a reset button if you want to refresh the cached data
+            const resetButton = document.createElement('button');
+            resetButton.textContent = '[RESET_CACHE]';
+            resetButton.addEventListener('click', () => {
+                cachedUnbackedData = null;
+                allResults = {};
+                fetchAllCollateralData();
+            });
+            document.querySelector('.view-selector').appendChild(resetButton);
             const debtSummary = document.getElementById('debtSummary');
             if (debtSummary) {
                 debtSummary.style.display = 'none';
