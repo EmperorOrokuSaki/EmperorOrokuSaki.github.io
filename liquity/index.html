@@ -494,6 +494,161 @@
             '2': '0x167E36d835Fd5502844a4E008E880e18E4894afD'
         };
 
+        const marketContracts = {
+            '0': '0x81d78814df42da2cab0e8870c477bc3ed861de66', // ETH
+            '1': '0xb47ef60132deabc89580fd40e49c062d93070046', // wstETH
+            '2': '0xde026433882a9dded65cac4fff8402fafff40fca'  // rETH
+        };
+        const marketAbi = [{
+            "inputs": [],
+            "name": "getUnbackedPortionPriceAndRedeemability",
+            "outputs": [
+                { "internalType": "uint256", "name": "", "type": "uint256" },
+                { "internalType": "uint256", "name": "", "type": "uint256" },
+                { "internalType": "bool", "name": "", "type": "bool" }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }];
+        async function getUnbackedPortions() {
+            const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
+            let unbackedPortions = {};
+            let totalUnbacked = 0n;
+
+            for (const [index, address] of Object.entries(marketContracts)) {
+                const contract = new web3.eth.Contract(marketAbi, address);
+                try {
+                    const result = await contract.methods.getUnbackedPortionPriceAndRedeemability().call();
+                    unbackedPortions[index] = BigInt(result[0]);
+                    totalUnbacked += BigInt(result[0]);
+                    console.log(`Market ${index}:`);
+                    console.log(`- Unbacked portion: ${result[0]}`);
+                    console.log(`- Running total unbacked: ${totalUnbacked}`);
+                } catch (error) {
+                    console.error(`Error getting unbacked portion for market ${index}:`, error);
+                    unbackedPortions[index] = 0n;
+                }
+            }
+
+            return { unbackedPortions, totalUnbacked };
+        }
+
+        async function calculateMarketMetrics(collIndex) {
+            const currentResults = allResults[collIndex] || [];
+            const currentBatchManager = batchManagers[collIndex];
+
+            // Get unbacked portions first
+            const { unbackedPortions, totalUnbacked } = await getUnbackedPortions();
+
+            console.log(`\nCalculating metrics for market ${collIndex}:`);
+            console.log(`- Market unbacked portion: ${unbackedPortions[collIndex]}`);
+            console.log(`- Total unbacked: ${totalUnbacked}`);
+
+            // Calculate total debt across all markets (in BigInt)
+            const totalDebt = Object.values(allResults).reduce((sum, results) =>
+                sum + results.reduce((colSum, item) => colSum + BigInt(item.debt), 0n), 0n);
+
+            // Calculate debt below manager for current market only (in BigInt)
+            const debtBelowManager = currentResults.reduce((sum, item) => {
+                if (item.interestBatchManager.toLowerCase() === currentBatchManager.toLowerCase()) {
+                    const debtIndex = currentResults.findIndex(
+                        x => x.interestBatchManager.toLowerCase() === currentBatchManager.toLowerCase()
+                    );
+                    return sum + currentResults.slice(0, debtIndex)
+                        .reduce((acc, x) => acc + BigInt(x.debt), 0n);
+                }
+                return sum;
+            }, 0n);
+
+            console.log(`- Total debt (wei): ${totalDebt}`);
+            console.log(`- Debt below manager (wei): ${debtBelowManager}`);
+
+            const redemptionSplit = Number(unbackedPortions[collIndex]) / Number(totalUnbacked);
+            const debtBelowManagerScaled = Number(debtBelowManager) / 1e18;
+            const totalDebtScaled = Number(totalDebt) / 1e18;
+
+            console.log(`Scaled values:`);
+            console.log(`- Redemption split: ${redemptionSplit}`);
+            console.log(`- Debt below manager: ${debtBelowManagerScaled}`);
+            console.log(`- Total debt: ${totalDebtScaled}`);
+
+            const percentage = (debtBelowManagerScaled / redemptionSplit) / totalDebtScaled * 100;
+
+            console.log(`Final percentage calculation:`);
+            console.log(`(${debtBelowManagerScaled} / ${redemptionSplit}) / ${totalDebtScaled} * 100 = ${percentage}%`);
+
+            return {
+                debtBelowManager: debtBelowManagerScaled,
+                totalDebt: totalDebtScaled,
+                redemptionSplit: redemptionSplit * 100,
+                percentage
+            };
+        }
+
+        async function displayResults() {
+            const resultBody = document.getElementById('resultBody');
+            resultBody.innerHTML = '';
+
+            const debtSummary = document.getElementById('debtSummary');
+            const collIndex = document.getElementById('collateralSelect').value;
+            const currentResults = allResults[collIndex] || [];
+            const paginatedResults = currentResults.slice(
+                currentPage * resultsPerPage,
+                (currentPage + 1) * resultsPerPage
+            );
+
+            try {
+                // Calculate metrics
+                const metrics = await calculateMarketMetrics(collIndex);
+
+                // Update analysis row with new calculations
+                debtSummary.innerHTML = `| [ANALYSIS_COMPLETE] | ` +
+                    `DEBT_BELOW_MANAGER: ${metrics.debtBelowManager.toFixed(3)} BOLD | ` +
+                    `REDEMPTION_SPLIT: ${metrics.redemptionSplit.toFixed(2)}% | ` +
+                    `TOTAL_DEBT: ${metrics.totalDebt.toFixed(2)} BOLD | ` +
+                    `PERCENTAGE: ${metrics.percentage.toFixed(2)}% |`;
+
+                // Rest of the display logic
+                for (const item of paginatedResults) {
+                    const row = document.createElement('tr');
+                    const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000'
+                        ? '—'
+                        : item.interestBatchManager;
+
+                    // Interest rate in x.xx format (2 decimal places, no leading zeros)
+                    const interestRate = (Number(item.interestRate) / 1e16).toFixed(2);
+
+                    // Debt in xxx_xxx_xxx format (no decimals)
+                    const debtNum = Math.floor(Number(item.debt) / 1e18).toString();
+                    const debt = debtNum.replace(/\B(?=(\d{3})+(?!\d))/g, "_");
+
+                    const isManagedAddress = Object.values(batchManagers)
+                        .map(addr => addr.toLowerCase())
+                        .includes(item.interestBatchManager.toLowerCase());
+
+                    if (isManagedAddress) {
+                        row.classList.add('highlight');
+                    }
+
+                    row.innerHTML = `
+                <td><code style="padding-left: ${isManagedAddress ? '20px' : '0'}">${batchManager}</code></td>
+                <td>${interestRate}%</td>
+                <td>${debt}_BOLD</td>
+            `;
+                    resultBody.appendChild(row);
+                }
+            } catch (error) {
+                console.error('Error in displayResults:', error);
+                debtSummary.innerHTML = '| [ERROR] | Failed to calculate metrics |';
+            }
+
+            document.getElementById('resultTable').style.display = 'table';
+            document.getElementById('pagination').style.display = 'block';
+            document.getElementById('prevPage').disabled = currentPage === 0;
+            document.getElementById('nextPage').disabled =
+                (currentPage + 1) * resultsPerPage >= currentResults.length;
+        }
+
         let currentPage = 0;
         let resultsPerPage = 25;
         let allResults = {};
@@ -546,64 +701,6 @@
                 debtSummary.innerHTML = '| ERROR: FETCH_FAILED |';
                 console.error('Error:', error);
             }
-        }
-
-        async function displayResults() {
-            const resultBody = document.getElementById('resultBody');
-            resultBody.innerHTML = '';
-
-            const debtSummary = document.getElementById('debtSummary');
-            const collIndex = document.getElementById('collateralSelect').value;
-            const currentResults = allResults[collIndex] || [];
-            const paginatedResults = currentResults.slice(
-                currentPage * resultsPerPage,
-                (currentPage + 1) * resultsPerPage
-            );
-
-            // Calculate summary data
-            const currentBatchManager = batchManagers[collIndex];
-            const totalDebtAbove = calculateDebtAboveManager(currentBatchManager);
-            const totalDebt = Object.values(allResults).reduce((sum, results) =>
-                sum + results.reduce((colSum, item) => colSum + Number(item.debt) / 1e18, 0), 0);
-
-            // Update analysis row with summary data
-            debtSummary.innerHTML = `| [ANALYSIS_COMPLETE] | DEBT_BELOW_MANAGER: ${totalDebtAbove.toFixed(3)} BOLD | TOTAL_DEBT: ${totalDebt.toFixed(2)} BOLD | PERCENTAGE: ${((totalDebtAbove / totalDebt) * 100).toFixed(2)}% |`;
-
-            // Populate table data
-            for (const item of paginatedResults) {
-                const row = document.createElement('tr');
-                const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000'
-                    ? '—'
-                    : item.interestBatchManager;
-
-                // Interest rate in x.xx format (2 decimal places, no leading zeros)
-                const interestRate = (Number(item.interestRate) / 1e16).toFixed(2);
-
-                // Debt in xxx_xxx_xxx format (no decimals)
-                const debtNum = Math.floor(Number(item.debt) / 1e18).toString();
-                const debt = debtNum.replace(/\B(?=(\d{3})+(?!\d))/g, "_");
-
-                const isManagedAddress = Object.values(batchManagers)
-                    .map(addr => addr.toLowerCase())
-                    .includes(item.interestBatchManager.toLowerCase());
-
-                if (isManagedAddress) {
-                    row.classList.add('highlight');
-                }
-
-                row.innerHTML = `
-            <td><code style="padding-left: ${isManagedAddress ? '20px' : '0'}">${batchManager}</code></td>
-            <td>${interestRate}%</td>
-            <td>${debt}_BOLD</td>
-        `;
-                resultBody.appendChild(row);
-            }
-
-            document.getElementById('resultTable').style.display = 'table';
-            document.getElementById('pagination').style.display = 'block';
-            document.getElementById('prevPage').disabled = currentPage === 0;
-            document.getElementById('nextPage').disabled =
-                (currentPage + 1) * resultsPerPage >= currentResults.length;
         }
 
         // Initialize the page
