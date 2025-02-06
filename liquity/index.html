@@ -321,6 +321,23 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .etherscan-link {
+            color: #0f0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .etherscan-link:hover {
+            color: #00ff00;
+            text-decoration: underline;
+        }
+        
+        .etherscan-link::after {
+            content: "↗";
+            margin-left: 4px;
+            font-size: 0.8em;
+        }
     </style>
 </head>
 
@@ -457,6 +474,14 @@
                     toElement.style.animation = '';
                 }, 300);
             }, 300);
+        }
+
+        function getEtherscanLink(address) {
+            if (address === '—') return '—';
+            return `<a href="https://etherscan.io/address/${address}" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="etherscan-link">${address}</a>`;
         }
 
         let cachedUnbackedData = null;
@@ -643,7 +668,7 @@
         }
 
 
-        async function displayResults() {
+                async function displayResults() {
             const resultBody = document.getElementById('resultBody');
             resultBody.innerHTML = '';
 
@@ -671,12 +696,9 @@
                     const row = document.createElement('tr');
                     const batchManager = item.interestBatchManager === '0x0000000000000000000000000000000000000000'
                         ? '—'
-                        : item.interestBatchManager;
+                        : getEtherscanLink(item.interestBatchManager);
 
-                    // Interest rate in x.xx format (2 decimal places, no leading zeros)
                     const interestRate = (Number(item.interestRate) / 1e16).toFixed(2);
-
-                    // Debt in xxx_xxx_xxx format (no decimals)
                     const debtNum = Math.floor(Number(item.debt) / 1e18).toString();
                     const debt = debtNum.replace(/\B(?=(\d{3})+(?!\d))/g, "_");
 
@@ -689,10 +711,10 @@
                     }
 
                     row.innerHTML = `
-                <td><code style="padding-left: ${isManagedAddress ? '20px' : '0'}">${batchManager}</code></td>
-                <td>${interestRate}%</td>
-                <td>${debt}_BOLD</td>
-            `;
+                        <td><code style="padding-left: ${isManagedAddress ? '20px' : '0'}">${batchManager}</code></td>
+                        <td>${interestRate}%</td>
+                        <td>${debt}_BOLD</td>
+                    `;
                     resultBody.appendChild(row);
                 }
             } catch (error) {
@@ -706,6 +728,7 @@
             document.getElementById('nextPage').disabled =
                 (currentPage + 1) * resultsPerPage >= currentResults.length;
         }
+
 
         let currentPage = 0;
         let resultsPerPage = 25;
@@ -892,7 +915,7 @@
                     const row = document.createElement('tr');
                     const marketShare = ((amount / marketTotals[collIndex]) * 100).toFixed(2);
                     row.innerHTML = `
-                        <td>${manager}</td>
+                        <td>${getEtherscanLink(manager)}</td>
                         <td>${markets[collIndex]}</td>
                         <td>${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td>${marketShare}%</td>
