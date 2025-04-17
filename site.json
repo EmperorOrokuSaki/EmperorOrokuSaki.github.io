@@ -1,0 +1,124 @@
+{
+    "name": "Nima",
+    "tagline": "Rust programmer. Low-level compute enthusiast. A curious George.",
+    "about": [
+        "I write low-level Rust and occasionally look up to remember why. Low-level computing resonates with my curiosity to understand how things truly work. I like knowing what’s underneath, how it moves, and how I can build something real from it. I love creating. It's the one thing that always makes sense to me. I think about film and philosophy more than I talk about them. They shape how I see the world, and I try to let that shape my work too."
+    ],
+    "interests": [
+        "cinema",
+        "virtual machines",
+        "blockchains",
+        "philosophy"
+    ],
+    "favoriteFilms": [
+        {
+            "title": "Stalker",
+            "director": "Andrei Tarkovsky"
+        },
+        {
+            "title": "Dogville",
+            "director": "Lars von Trier"
+        },
+        {
+            "title": "Dune: Part Two",
+            "director": "Denis Villeneuve"
+        },
+        {
+            "title": "Birds",
+            "director": "Alfred Hitchcock"
+        }
+    ],
+    "projects": [
+        {
+            "id": "liquity-ir",
+            "title": "Liquity Autonomous IR Manager",
+            "description": "An immutable and trustless autonomous interest rate management protocol for Liquity V2.",
+            "tags": [
+                "defi",
+                "rust"
+            ],
+            "githubUrl": "https://github.com/liquity/bold-ir-management"
+        },
+        {
+            "id": "DAB",
+            "title": "DAB",
+            "description": "Collection of on-chain data registries for tokens on the Internet Computer Protocol.",
+            "tags": [
+                "infra",
+                "rust"
+            ],
+            "githubUrl": "https://github.com/psychedelic/dab"
+        },
+        {
+            "id": "NFA",
+            "title": "Non-Fungible Apps",
+            "description": "Trustless onchain access to web3 frontends.",
+            "tags": [
+                "solidity",
+                "infra"
+            ],
+            "githubUrl": "https://github.com/fleekxyz/non-fungible-apps"
+        }
+    ],
+    "workExperience": [
+        {
+            "title": "EIR",
+            "company": "Code & State",
+            "period": "2025 - Present",
+            "description": "Building a probabilistic privacy solution for Ethereum.",
+            "tags": [
+                "rust",
+                "blockchain",
+                "infra"
+            ]
+        },
+        {
+            "title": "Technology Lead",
+            "company": "Code & State",
+            "period": "2024 - 2025",
+            "description": "Built an autonomous rate adjustment mechanism for Liquity V2 (contractor).",
+            "tags": [
+                "rust",
+                "blockchain",
+                "defi"
+            ]
+        },
+        {
+            "title": "Security Researcher",
+            "company": "Solidstate (Contractor)",
+            "period": "2023 - Present",
+            "description": "Auditing smart contracts.",
+            "tags": [
+                "security",
+                "rust"
+            ]
+        },
+        {
+            "title": "Software Engineer",
+            "company": "Fleek",
+            "period": "2021 - 2024",
+            "description": "Built Rust infrastructure tools and WASM-compiled smart contracts.",
+            "tags": [
+                "rust",
+                "blockchain",
+                "infra"
+            ]
+        }
+    ],
+    "blogPosts": [
+        {
+            "slug": "first-post",
+            "title": "My First Post",
+            "date": "2023-05-15",
+            "excerpt": "An introduction.",
+            "tags": [
+                "intro"
+            ],
+            "content": "# My First Post\n\nThis is my first blog post."
+        }
+    ],
+    "socialLinks": {
+        "github": "https://github.com/EmperorOrokuSaki",
+        "twitter": "https://x.com/0xNimaRa"
+    }
+}
