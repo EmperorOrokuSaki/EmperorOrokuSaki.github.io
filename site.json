@@ -117,8 +117,12 @@
             "content": "# My First Post\n\nThis is my first blog post."
         }
     ],
-    "socialLinks": {
-        "github": "https://github.com/EmperorOrokuSaki",
-        "twitter": "https://x.com/0xNimaRa"
-    }
+"socialLinks": {
+  "github": "https://github.com/EmperorOrokuSaki",
+  "twitter": "https://twitter.com/0xNimaRa", // Will display as X icon
+  "linkedin": "https://www.linkedin.com/in/nima-rasooli/",
+  "email": "mailto:me@nimra.xyz",
+  "letterboxd": "https://letterboxd.com/nimara/",
+  "telegram": "https://t.me/Emperororokusaki"
+}
 }
