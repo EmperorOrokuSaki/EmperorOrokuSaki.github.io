@@ -740,6 +740,58 @@
             ));
         }
 
+        async function fetchCollateralDataPaginated(collIndex, web3, contract) {
+            let allData = [];
+            let startId = 0;
+            const maxIterations = 25;
+            let hasMoreData = true;
+            let batchCount = 0;
+
+            while (hasMoreData && batchCount < 20) { // Safety limit of 20 batches
+                try {
+                    console.log(`Fetching batch ${batchCount + 1} for collateral ${collIndex}, startId: ${startId}`);
+                    
+                    const result = await contract.methods
+                        .getDebtPerInterestRateAscending(collIndex, startId, maxIterations)
+                        .call();
+                    
+                    const serializedResult = serializeBigInt(result);
+                    const batchData = serializedResult[0];
+                    
+                    // Filter out entries with zero debt
+                    const validData = batchData.filter(item => BigInt(item.debt) > 0n);
+                    
+                    if (validData.length === 0) {
+                        // No more valid data
+                        hasMoreData = false;
+                        break;
+                    }
+                    
+                    allData.push(...validData);
+                    
+                    // Check if we got less than maxIterations, meaning we've reached the end
+                    if (batchData.length < maxIterations) {
+                        hasMoreData = false;
+                        break;
+                    }
+                    
+                    // Use the returned currId for the next batch
+                    startId = serializedResult[1];
+                    batchCount++;
+                    
+                    // Small delay to avoid overwhelming the RPC
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                } catch (error) {
+                    console.error(`Error fetching batch ${batchCount + 1} for collateral ${collIndex}:`, error);
+                    hasMoreData = false;
+                }
+            }
+            
+            console.log(`Completed fetching collateral ${collIndex}: ${allData.length} entries in ${batchCount} batches`);
+            return allData;
+        }
+
         async function fetchAllCollateralData() {
             // Create or get the analysis row
             let debtSummary = document.getElementById('debtSummary');
@@ -760,13 +812,11 @@
                 const contract = new web3.eth.Contract(abi, contractAddress);
 
                 for (const collIndex of collateralIndices) {
-                    debtSummary.innerHTML = `| FETCHING_COLLATERAL_${collIndex}_DATA |`;
+                    debtSummary.innerHTML = `| FETCHING_COLLATERAL_${collIndex}_DATA_PAGINATED |`;
                     try {
-                        const result = await contract.methods
-                            .getDebtPerInterestRateAscending(collIndex, 0, 100)
-                            .call();
-                        const serializedResult = serializeBigInt(result);
-                        allResults[collIndex] = serializedResult[0].filter(item => BigInt(item.debt) > 0n);
+                        console.log(`Starting paginated fetch for collateral ${collIndex}`);
+                        allResults[collIndex] = await fetchCollateralDataPaginated(collIndex, web3, contract);
+                        console.log(`Completed collateral ${collIndex}: ${allResults[collIndex].length} total entries`);
                     } catch (error) {
                         console.error(`Error fetching data for collateral ${collIndex}:`, error);
                         allResults[collIndex] = [];
@@ -783,7 +833,6 @@
                 console.error('Error:', error);
             }
         }
-
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
             createMatrixBackground();
