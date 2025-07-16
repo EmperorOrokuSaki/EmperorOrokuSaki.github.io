@@ -1,6 +1,6 @@
 {
-    "name": "Nima",
-    "tagline": "Rust programmer. Low-level compute enthusiast. A curious George living in Berlin.",
+    "name": "Nima Rasooli",
+    "tagline": "Rust programmer. Low-level compute enthusiast. A 21-year-old curious George living in Berlin.",
     "about": [
         "I write low-level Rust and occasionally look up to remember why. Low-level computing resonates with my curiosity to understand how things truly work. I like knowing what’s underneath, how it moves, and how I can build something real from it. I love creating. It's the one thing that always makes sense to me. I think about film and philosophy more than I talk about them. They shape how I see the world, and I try to let that shape my work too."
     ],
@@ -62,8 +62,8 @@
     ],
     "workExperience": [
         {
-            "title": "EIR",
-            "company": "Code & State",
+            "title": "Founder",
+            "company": "Mirage",
             "period": "2025 - Present",
             "description": "Building a probabilistic privacy solution for Ethereum.",
             "tags": [
